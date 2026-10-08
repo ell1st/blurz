@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ell - Blur</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <!-- Loading -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <span>Memuat Ell - Blur...</span>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-container"></div>
+
+    <!-- Username Modal -->
+    <div id="username-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Masuk Global Chat</h2>
+            <p>Masukkan username untuk bergabung</p>
+            <input type="text" id="username-input" class="modal-input" placeholder="Username kamu" maxlength="20" autocomplete="off">
+            <div id="username-error" class="modal-error"></div>
+            <button id="username-submit" class="modal-submit">Lanjut</button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="top-nav">
+        <div class="nav-section">
+            <button class="nav-btn" id="nav-qr-create" title="Buat QR Invite">
+                <i class="fa-solid fa-qrcode"></i>
+            </button>
+            <button class="nav-btn" id="nav-qr-scan" title="Scan QR">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+        <div class="nav-section center-section">
+            <span class="app-title">Ell - Blur</span>
+        </div>
+        <div class="nav-section">
+            <button class="nav-btn" id="nav-chat" title="Global Chat">
+                <i class="fa-solid fa-comments"></i>
+            </button>
+            <button class="nav-btn active" id="nav-camera" title="Kamera">
+                <i class="fa-solid fa-video"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Camera View -->
+    <section id="camera-view" class="view active">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <div id="blur-indicator">
+            <i class="fa-solid fa-eye-slash"></i>
+            <span>Blur Aktif</span>
+        </div>
+        <div id="camera-fallback">
+            <i class="fa-solid fa-video-slash"></i>
+            <p>Kamera tidak tersedia</p>
+        </div>
+        <div id="connection-frames">
+            <div class="conn-frame" id="sender-frame">
+                <video id="sender-video" autoplay playsinline muted></video>
+                <span class="frame-label">Pengirim</span>
+            </div>
+            <div class="conn-frame" id="receiver-frame">
+                <div class="placeholder-icon"><i class="fa-solid fa-user"></i></div>
+                <span class="frame-label" id="receiver-label">Penerima</span>
+            </div>
+        </div>
+        <div id="gesture-status">Mendeteksi gestur...</div>
+        <button id="manual-blur-btn" title="Toggle Blur Manual">
+            <i class="fa-solid fa-hand-peace"></i>
+        </button>
+    </section>
+
+    <!-- QR Create View -->
+    <section id="qr-create-view" class="view">
+        <div class="qr-card">
+            <h2>Buat QR Invite</h2>
+            <div id="qr-code-display"></div>
+            <div class="invite-code-section">
+                <label>Kode Invite</label>
+                <div class="code-display">
+                    <span id="invite-code-text">ell-0000</span>
+                    <button class="copy-btn" id="copy-code-btn" title="Salin Kode">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="qr-hint">Bagikan QR atau kode ini kepada orang yang ingin di-invite</p>
+        </div>
+    </section>
+
+    <!-- QR Scan View -->
+    <section id="qr-scan-view" class="view">
+        <div class="qr-scan-card">
+            <h2>Scan QR</h2>
+            <div class="scan-area">
+                <video id="scan-video" autoplay playsinline muted></video>
+                <div class="scan-overlay">
+                    <div class="scan-frame">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="manual-code-section">
+                <label>Atau masukkan kode manual</label>
+                <div class="code-input-group">
+                    <span class="code-prefix">ell-</span>
+                    <input type="text" id="code-input" class="code-input" placeholder="0000" maxlength="4" inputmode="numeric" autocomplete="off">
+                </div>
+                <button class="join-btn" id="join-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Gabung</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat View -->
+    <section id="chat-view" class="view">
+        <div class="chat-header">
+            <h2>Global Chat</h2>
+            <div class="user-info" id="user-info"></div>
+        </div>
+        <div class="online-bar" id="online-bar">
+            <i class="fa-solid fa-circle" style="font-size:6px;color:var(--success);"></i>
+            <span id="online-count">0 online</span>
+        </div>
+        <div class="messages-list" id="messages-list"></div>
+        <div class="reply-preview hidden" id="reply-preview">
+            <div class="reply-preview-content">
+                <div class="reply-preview-author" id="reply-preview-author"></div>
+                <div class="reply-preview-text" id="reply-preview-text"></div>
+            </div>
+            <button class="cancel-reply-btn" id="cancel-reply-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Tulis pesan..." maxlength="500" autocomplete="off">
+            <button class="send-btn" id="send-btn">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Hidden canvas untuk QR scan processing -->
+    <canvas id="qr-scan-canvas" style="display:none"></canvas>
+
+    <script src="index.js"></script>
+</body>
+                      </html>
